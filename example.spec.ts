@@ -9,8 +9,22 @@ test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
   });
 
   /**
-   * HAPPY CASE: DYNAMIC EXPANSION WITH OUTPUT
-   * Tests all pairs where Return is >= 1 year after Departure.
+   * NAVIGATION & BRANDING CASES
+   */
+  test('Navigation: Logo and Slogan should link to Home', async ({ page }) => {
+    const slogan = page.locator('text="Book a ticket to the red planet now!"');
+    await expect(slogan).toBeVisible();
+
+    await slogan.click();
+    await expect(page).toHaveURL(URL);
+
+    const logo = page.locator('h1 a, .logo a').first(); 
+    await logo.click();
+    await expect(page).toHaveURL(URL);
+  });
+
+  /**
+   * HAPPY CASE: DYNAMIC EXPANSION WITH FULL TEXT OUTPUT
    */
   test('Happy Case: All combinations with 1 year or more gap', async ({ page }) => {
     const options = await page.$$eval('#departing option', (elements) => 
@@ -21,7 +35,7 @@ test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
 
     for (let i = 0; i < options.length; i++) {
       for (let j = 0; j < options.length; j++) {
-        // Gap of 2 indices = ~1 year in the MarsAir seasonal cycle
+        // 1 year gap logic
         if (j >= i + 2) {
           const departure = options[i];
           const returning = options[j];
@@ -30,13 +44,13 @@ test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
           await page.selectOption('#returning', returning.value);
           await page.click('input[type="submit"]');
 
-          const contentText = await page.locator('#content').innerText();
-          const isPossible = !contentText.includes('Unfortunately, this schedule is not possible');
+          // Capture the text from the content area
+          const contentText = (await page.locator('#content').innerText()).replace(/\n/g, ' ').trim();
           
           results.push({
             Departure: departure.text,
             Return: returning.text,
-            Result: contentText
+            Result: contentText // Captures the specific message for this pair
           });
 
           await expect(page.locator('#content')).not.toContainText('Unfortunately, this schedule is not possible');
@@ -45,7 +59,7 @@ test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
         }
       }
     }
-    // Prints a clean table of all tested combinations in your terminal
+    // Terminal will now show the exact text returned by the site for each pair
     console.table(results);
   });
 
@@ -55,7 +69,6 @@ test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
     await page.selectOption('#departing', { index: 1 }); 
     await page.selectOption('#returning', { index: 2 }); 
     await page.click('input[type="submit"]');
-
     await expect(page.locator('#content')).toContainText('Unfortunately, this schedule is not possible');
   });
 
@@ -63,7 +76,6 @@ test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
     await page.selectOption('#departing', { index: 1 });
     await page.selectOption('#returning', { index: 1 });
     await page.click('input[type="submit"]');
-    
     await expect(page.locator('#content')).toContainText('Unfortunately, this schedule is not possible');
   });
 
@@ -71,16 +83,13 @@ test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
     await page.selectOption('#departing', { index: 2 }); 
     await page.selectOption('#returning', { index: 1 }); 
     await page.click('input[type="submit"]');
-
     await expect(page.locator('#content')).toContainText('Unfortunately, this schedule is not possible');
   });
 
   test('Negative: Mandatory fields not filled', async ({ page }) => {
-    // Leave dropdowns at "Select..." (index 0)
     await page.selectOption('#departing', { index: 0 });
     await page.selectOption('#returning', { index: 0 });
     await page.click('input[type="submit"]');
-
     await expect(page.locator('#content')).toContainText('Unfortunately, this schedule is not possible');
   });
 });
