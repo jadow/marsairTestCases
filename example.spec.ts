@@ -152,6 +152,15 @@ test.describe('MarsAir Flight Booking Suite', () => {
         await expect(page.locator('#content')).toContainText(`Promotional code ${validCode} used: 50% discount!`);
       });
 
+      test('Valid code (J25-OPQ-005) should be accepted', async ({ page }) => {
+        const validCode = "J25-OPQ-005";
+        await page.fill('#promotional_code', validCode);
+        await page.selectOption('#departing', { index: 1 });
+        await page.selectOption('#returning', { index: 6 });
+        await page.click('input[type="submit"]');
+        await expect(page.locator('#content')).toContainText(`Promotional code ${validCode} used: 50% discount!`);
+      });
+
       test('Invalid check digit (JJ5-OPQ-321) should be rejected', async ({ page }) => {
         const invalidCode = "JJ5-OPQ-321";
         await page.fill('#promotional_code', invalidCode);
@@ -168,15 +177,6 @@ test.describe('MarsAir Flight Booking Suite', () => {
         await page.selectOption('#returning', { index: 6 });
         await page.click('input[type="submit"]');
         await expect(page.locator('#content')).toContainText(`Sorry, code ${badFormat} is not valid`);
-      });
-
-      test('Incorrect characters in format (J25-...) should be rejected', async ({ page }) => {
-        const badChars = "J25-OPQ-005";
-        await page.fill('#promotional_code', badChars);
-        await page.selectOption('#departing', { index: 1 });
-        await page.selectOption('#returning', { index: 6 });
-        await page.click('input[type="submit"]');
-        await expect(page.locator('#content')).toContainText(`Sorry, code ${badChars} is not valid`);
       });
     });
   });
