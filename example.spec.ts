@@ -2,6 +2,14 @@ import { test, expect } from '@playwright/test';
 
 const URL = 'https://marsair.recruiting.thoughtworks.net/FooYongJie';
 
+function generatePromoCode(discountDigit, d2, d3) {
+  const prefix = "AF"; // Static random chars
+  const mid = "FJK";    // Static random chars
+  const sum = discountDigit + d2 + d3;
+  const checkDigit = sum % 10;
+  return `${prefix}${discountDigit}-${mid}-${d2}${d3}${checkDigit}`;
+}
+
 test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
 
   test.beforeEach(async ({ page }) => {
