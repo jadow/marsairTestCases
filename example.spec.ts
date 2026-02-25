@@ -77,6 +77,43 @@ test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
     console.table(results);
   });
 
+  const discounts = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  for (const d of discounts) {
+    test(`Discount Test: ${d} indicates ${d}0% discount`, async ({ page }) => {
+      const code = generatePromoCode(d, 0, 0); // e.g., for 3: AF3-FJK-115
+      await page.fill('#promotional_code', code);
+      await page.selectOption('#departing', { index: 1 });
+      await page.selectOption('#returning', { index: 6 });
+      await page.click('input[type="submit"]');
+
+      const result = page.locator('#content');
+      await expect(result).toContainText(`Promotional code ${code} used: ${d}0% discount!`);
+    });
+  }
+
+  const checkDigits = [
+    { d1: 1, d2: 0, d3: 9, expected: 0 }, // 1+0+9 = 10 % 10 = 0
+    { d1: 1, d2: 1, d3: 9, expected: 1 }, // 1+1+9 = 11 % 10 = 1
+    { d1: 2, d2: 5, d3: 5, expected: 2 }, // 2+5+5 = 12 % 10 = 2
+    { d1: 3, d2: 0, d3: 0, expected: 3 }, // 3+0+0 = 3  % 10 = 3
+    { d1: 4, d2: 5, d3: 5, expected: 4 }, // 4+5+5 = 14 % 10 = 4
+    { d1: 5, d2: 5, d3: 5, expected: 5 }, // 5+5+5 = 15 % 10 = 5
+    { d1: 6, d2: 5, d3: 5, expected: 6 }, // 6+5+5 = 16 % 10 = 6
+    { d1: 7, d2: 5, d3: 5, expected: 7 }, // 7+5+5 = 17 % 10 = 7
+    { d1: 8, d2: 5, d3: 5, expected: 8 }, // 8+5+5 = 18 % 10 = 8
+    { d1: 9, d2: 5, d3: 5, expected: 9 }, // 9+5+5 = 19 % 10 = 9
+  ];
+
+  for (const check of checkDigits) {
+    test(`Modulo Check: Verification of check digit ${check.expected}`, async ({ page }) => {
+      const code = generatePromoCode(check.d1, check.d2, check.d3);
+      await page.fill('#promotional_code', code);
+      await page.click('input[type="submit"]');
+
+      await expect(page.locator('#content')).toContainText(`Promotional code ${code} used`);
+    });
+  }
+
   test('Validity: Valid code should be accepted', async ({ page }) => {
     const validCode = "JJ5-OPQ-005"; // 5+0+0 = 5 % 10 = 5
     await page.fill('#promotional_code', validCode);
