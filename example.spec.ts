@@ -11,14 +11,20 @@ test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
   /**
    * NAVIGATION & BRANDING CASES
    */
-  test('Navigation: Logo and Slogan should link to Home', async ({ page }) => {
+  test('Navigation: Slogan should link to Home', async ({ page }) => {
     const slogan = page.locator('text="Book a ticket to the red planet now!"');
     await expect(slogan).toBeVisible();
-
+    await expect(slogan).toHaveJSProperty('tagName', 'A');
+    await expect(slogan).toHaveAttribute('href', 'FooYongJie');
     await slogan.click();
     await expect(page).toHaveURL(URL);
+  });
 
+  test('Navigation: Logo should link to Home', async ({ page }) => {
     const logo = page.locator('h1 a, .logo a').first(); 
+    await expect(logo).toBeVisible();
+    await expect(logo).toHaveJSProperty('tagName', 'A');
+    await expect(logo).toHaveAttribute('href', '/FooYongJie');
     await logo.click();
     await expect(page).toHaveURL(URL);
   });
