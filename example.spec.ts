@@ -56,9 +56,6 @@ test.describe('MarsAir Flight Booking - Mandatory Fields', () => {
     
     await page.click('input[type="submit"]');
     
-    // Verify if there is an error message or if the search fails to proceed
-    // The specific app behavior varies: check for "invalid" or similar prompts
-    const errorMessage = page.locator('.error, #content');
-    await expect(errorMessage).toBeVisible();
+    await expect(page.locator('#content')).toContainText('Unfortunately, this schedule is not possible');
   });
 });
