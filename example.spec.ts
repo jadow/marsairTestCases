@@ -144,6 +144,15 @@ test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
     await expect(page.locator('#content')).toContainText(`Sorry, code ${badFormat} is not valid`);
   });
 
+  test('Validity: Incorrect characters should show error', async ({ page }) => {
+    const badFormat = "J25-OPQ-005";
+    await page.fill('#promotional_code', badFormat);
+    await page.selectOption('#departing', { index: 1 });
+    await page.selectOption('#returning', { index: 6 });
+    await page.click('input[type="submit"]');
+    await expect(page.locator('#content')).toContainText(`Sorry, code ${badFormat} is not valid`);
+  });
+
   /** * NEGATIVE CASES 
    */
   test('Negative: Return is less than a year after Departure', async ({ page }) => {
