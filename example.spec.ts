@@ -101,13 +101,15 @@ test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
     { d1: 6, d2: 5, d3: 5, expected: 6 }, // 6+5+5 = 16 % 10 = 6
     { d1: 7, d2: 5, d3: 5, expected: 7 }, // 7+5+5 = 17 % 10 = 7
     { d1: 8, d2: 5, d3: 5, expected: 8 }, // 8+5+5 = 18 % 10 = 8
-    { d1: 9, d2: 5, d3: 5, expected: 9 }, // 9+5+5 = 19 % 10 = 9
+    { d1: 9, d2: 0, d3: 0, expected: 9 }, // 9+5+5 = 19 % 10 = 9
   ];
 
   for (const check of checkDigits) {
     test(`Modulo Check: Verification of check digit ${check.expected}`, async ({ page }) => {
       const code = generatePromoCode(check.d1, check.d2, check.d3);
       await page.fill('#promotional_code', code);
+      await page.selectOption('#departing', { index: 1 });
+      await page.selectOption('#returning', { index: 6 });
       await page.click('input[type="submit"]');
 
       await expect(page.locator('#content')).toContainText(`Promotional code ${code} used`);
