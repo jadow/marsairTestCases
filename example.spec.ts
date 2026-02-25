@@ -15,7 +15,7 @@ test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
     const slogan = page.locator('text="Book a ticket to the red planet now!"');
     await expect(slogan).toBeVisible();
     await expect(slogan).toHaveJSProperty('tagName', 'A');
-    await expect(slogan).toHaveAttribute('href', 'FooYongJie');
+    await expect(slogan).toHaveAttribute('href', '/FooYongJie');
     await slogan.click();
     await expect(page).toHaveURL(URL);
   });
