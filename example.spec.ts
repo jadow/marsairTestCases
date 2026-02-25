@@ -69,6 +69,34 @@ test.describe('MarsAir Flight Booking - Comprehensive Validation', () => {
     console.table(results);
   });
 
+  test('Validity: Valid code should be accepted', async ({ page }) => {
+    const validCode = "JJ5-OPQ-005"; // 5+0+0 = 5 % 10 = 5
+    await page.fill('#promotional_code', validCode);
+    //we are just hardcoding this for simplicity sake bec i dont want dependency between the cases right now
+    await page.selectOption('#departing', { index: 1 });
+    await page.selectOption('#returning', { index: 6 });
+    await page.click('input[type="submit"]');
+    await expect(page.locator('#content')).toContainText(`Promotional code ${validCode} used: 50% discount!`);
+  });
+
+  test('Validity: Invalid check digit should show error', async ({ page }) => {
+    const invalidCode = "JJ5-OPQ-321"; // Should end in 0, but we put 1
+    await page.fill('#promotional_code', invalidCode);
+    await page.selectOption('#departing', { index: 1 });
+    await page.selectOption('#returning', { index: 6 });
+    await page.click('input[type="submit"]');
+    await expect(page.locator('#content')).toContainText(`Sorry, code ${invalidCode} is not valid`);
+  });
+
+  test('Validity: Incorrect format should show error', async ({ page }) => {
+    const badFormat = "INVALID-CODE-123";
+    await page.fill('#promotional_code', badFormat);
+    await page.selectOption('#departing', { index: 1 });
+    await page.selectOption('#returning', { index: 6 });
+    await page.click('input[type="submit"]');
+    await expect(page.locator('#content')).toContainText(`Sorry, code ${badFormat} is not valid`);
+  });
+
   /** * NEGATIVE CASES 
    */
   test('Negative: Return is less than a year after Departure', async ({ page }) => {
